@@ -1,8 +1,8 @@
-// src/pages/LoginPage.js
+// src/pages/SignupPage.js
 
 import React, { useState } from "react";
 
-function LoginPage() {
+function SignupPage() {
     const [formData, setFormData] = useState({
         username: "",
         password: ""
@@ -15,7 +15,7 @@ function LoginPage() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch("http://localhost:8080/api/auth/login", {
+            const response = await fetch("http://localhost:8080/api/auth/signup", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -24,11 +24,10 @@ function LoginPage() {
             });
 
             if (response.ok) {
-                const data = await response.json();
-                localStorage.setItem("token", data.token);
-                alert("Login successful!");
+                alert("Signup successful!");
             } else {
-                alert("Invalid credentials");
+                const errorData = await response.text();
+                alert(`Signup failed: ${errorData}`);
             }
         } catch (err) {
             console.error(err);
@@ -38,7 +37,7 @@ function LoginPage() {
 
     return (
         <form onSubmit={handleSubmit}>
-            <h2>Login</h2>
+            <h2>Sign Up</h2>
             <input
                 type="text"
                 name="username"
@@ -55,9 +54,9 @@ function LoginPage() {
                 onChange={handleChange}
                 required
             />
-            <button type="submit">Login</button>
+            <button type="submit">Sign Up</button>
         </form>
     );
 }
 
-export default LoginPage;
+export default SignupPage;

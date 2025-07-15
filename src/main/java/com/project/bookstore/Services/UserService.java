@@ -1,9 +1,12 @@
 package com.project.bookstore.Services;
 
+import com.project.bookstore.DTO.SignupRequest;
+import com.project.bookstore.Entity.Role;
 import com.project.bookstore.Entity.User;
 import com.project.bookstore.Repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,6 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public List<User> getAllUsers() {
         return userRepository.findAll();
@@ -27,6 +31,19 @@ public class UserService {
                     return userRepository.save(user);
                 })
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
+    }
+    public void register(SignupRequest request) {
+        if (userRepository.findByUsername(request.getUsername()).isPresent()) {
+            throw new RuntimeException("Username already exists");
+        }
+
+        User user = User.builder()
+                .username(request.getUsername())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .role(Role.valueOf("ROLE_USER"))
+                .build();
+
+        userRepository.save(user);
     }
 
     public User addUser(User user) {

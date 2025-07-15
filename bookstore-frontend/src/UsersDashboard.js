@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import EditUserModal from "/EditUserModal";
-import AddUserModal from "/AddUserModal";
+import EditUserModal from "./EditUserModal";
+import AddUserModal from "./AddUserModal";
 
 function UsersDashboard() {
     const [users, setUsers] = useState([]);

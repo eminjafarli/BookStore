@@ -1,9 +1,11 @@
 package com.project.bookstore.Controller;
 
 import com.project.bookstore.DTO.AuthRequest;
+import com.project.bookstore.DTO.SignupRequest;
 import com.project.bookstore.Entity.User;
 import com.project.bookstore.Repository.UserRepository;
 import com.project.bookstore.Security.JwtUtils;
+import com.project.bookstore.Services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,6 +28,14 @@ public class AuthController {
     private final JwtUtils jwtUtils;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserService userService;
+
+    @PostMapping("/signup")
+    public ResponseEntity<String> signup(@RequestBody SignupRequest request) {
+        userService.register(request);
+        return ResponseEntity.ok("User registered successfully");
+    }
+
 
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> login(@RequestBody AuthRequest authRequest) {

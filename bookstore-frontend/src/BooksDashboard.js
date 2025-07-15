@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import UploadBookModal from "/UploadBookModal";
+import UploadBookModal from "./UploadBookModal";
 
 function BooksDashboard() {
     const [books, setBooks] = useState([]);
