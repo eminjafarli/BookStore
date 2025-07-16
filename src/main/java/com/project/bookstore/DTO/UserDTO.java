@@ -11,7 +11,6 @@ import lombok.*;
 public class UserDTO {
     private Long id;
     private String name;
-    private String surname;
     private String username;
     private Role role;
     private int bookCount;

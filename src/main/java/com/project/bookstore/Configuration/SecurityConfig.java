@@ -48,11 +48,10 @@ public class SecurityConfig implements WebMvcConfigurer {
         return http.build();
     }
 
-    // Define the CorsConfigurationSource bean for Spring Security
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOrigin("http://localhost:3000"); // your React app origin
+        configuration.addAllowedOrigin("http://localhost:3000");
         configuration.addAllowedMethod("*");
         configuration.addAllowedHeader("*");
         configuration.setAllowCredentials(true);
@@ -63,7 +62,6 @@ public class SecurityConfig implements WebMvcConfigurer {
         return source;
     }
 
-    // Also implement this WebMvcConfigurer method to cover Spring MVC CORS handling
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")

@@ -15,7 +15,7 @@ function UserProfile() {
         <div>
             {profile && (
                 <>
-                    <h2>{profile.name} {profile.surname}</h2>
+                    <h2>{profile.name}</h2>
                     <h3>Books:</h3>
                     {profile.books.map(book => (
                         <div key={book.id}>{book.title}</div>

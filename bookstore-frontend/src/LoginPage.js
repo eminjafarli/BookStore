@@ -1,5 +1,3 @@
-// src/pages/LoginPage.js
-
 import React, { useState } from "react";
 
 function LoginPage() {

@@ -25,7 +25,6 @@ public class UserService {
         return userRepository.findById(id)
                 .map(user -> {
                     user.setName(updatedUser.getName());
-                    user.setSurname(updatedUser.getSurname());
                     user.setUsername(updatedUser.getUsername());
                     user.setRole(updatedUser.getRole());
                     return userRepository.save(user);
@@ -40,6 +39,7 @@ public class UserService {
         User user = User.builder()
                 .username(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
+                .name(request.getName())
                 .role(Role.valueOf("ROLE_USER"))
                 .build();
 

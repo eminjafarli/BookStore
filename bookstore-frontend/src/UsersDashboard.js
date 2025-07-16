@@ -19,7 +19,7 @@ function UsersDashboard() {
             <button onClick={() => setShowAddModal(true)}>Add Member</button>
             {users.map(user => (
                 <div key={user.id}>
-                    {user.username} - {user.name} {user.surname} - {user.books.length} books
+                    {user.username} - {user.name} - {user.books.length} books
                     <button onClick={() => { setSelectedUser(user); setShowEditModal(true); }}>Edit</button>
                 </div>
             ))}

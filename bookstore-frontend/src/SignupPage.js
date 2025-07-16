@@ -1,11 +1,11 @@
-// src/pages/SignupPage.js
 
 import React, { useState } from "react";
 
 function SignupPage() {
     const [formData, setFormData] = useState({
         username: "",
-        password: ""
+        password: "",
+        name:""
     });
 
     const handleChange = (e) => {
@@ -43,6 +43,14 @@ function SignupPage() {
                 name="username"
                 placeholder="Username"
                 value={formData.username}
+                onChange={handleChange}
+                required
+            />
+            <input
+                type="text"
+                name="name"
+                placeholder="Full Name"
+                value={formData.name}
                 onChange={handleChange}
                 required
             />
