@@ -1,5 +1,5 @@
 package com.project.bookstore.Entity;
 
 public enum Role {
-    ADMIN, MANAGER, EDITOR, MEMBER
+    ROLE_ADMIN, ROLE_MANAGER, ROLE_EDITOR, ROLE_USER
 }
