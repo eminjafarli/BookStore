@@ -3,6 +3,7 @@ import HomePage from "./HomePage";
 import UsersDashboard from "./UsersDashboard";
 import BooksDashboard from "./BooksDashboard";
 import LoginPage from "./LoginPage";
+import SignupPage from "./SignupPage";
 import ProtectedRoute from "./ProtectedRoute";
 
 function App() {
@@ -10,6 +11,7 @@ function App() {
         <Routes>
             <Route path="/" element={<Navigate to="/login" replace />} />
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignupPage />} />
             <Route
                 path="/home"
                 element={

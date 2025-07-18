@@ -119,7 +119,7 @@ function BooksDashboard() {
         <Container>
             <BackButton
                 onClick={() => {
-                    navigate("/");
+                    navigate("/home");
                 }}
             >
                 Back

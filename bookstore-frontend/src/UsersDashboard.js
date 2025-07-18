@@ -83,7 +83,7 @@ function UsersDashboard() {
         <Container>
             <BackButton
                 onClick={() => {
-                    navigate("/");
+                    navigate("/home");
                 }}
             >
                 Back

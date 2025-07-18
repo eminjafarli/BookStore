@@ -99,14 +99,17 @@ function LoginPage() {
             if (response.ok) {
                 const data = await response.json();
                 localStorage.setItem("token", data.token);
+                localStorage.setItem("role", data.role);
+
                 setNotification({ message: "Successful Login!", success: true });
+
                 setTimeout(() => {
-                    navigate("/");
+                    window.location.href = "/home";
                 }, 700);
             } else {
                 setNotification({ message: "Invalid Credentials.", success: false });
                 setTimeout(() => {
-                    setNotification(null)
+                    setNotification(null);
                 }, 1500);
             }
         } catch (err) {
@@ -145,6 +148,7 @@ function LoginPage() {
                     Don't have an account? <Link to="/signup">Sign Up</Link>
                 </SignUpLink>
             </FormBox>
+
             <AnimatePresence>
                 {notification && (
                     <Notification
@@ -159,7 +163,6 @@ function LoginPage() {
                 )}
             </AnimatePresence>
         </Container>
-
     );
 }
 
