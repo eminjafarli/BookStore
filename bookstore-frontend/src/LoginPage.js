@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import styled from "styled-components";
 import {AnimatePresence, motion} from "framer-motion";
+import {jwtDecode} from "jwt-decode";
 
 const Container = styled.div`
     height: 97vh;
@@ -98,13 +99,25 @@ function LoginPage() {
 
             if (response.ok) {
                 const data = await response.json();
-                localStorage.setItem("token", data.token);
-                localStorage.setItem("role", data.role);
+                const token = data.token;
+
+                const decoded = jwtDecode(token);
+                console.log("Decoded JWT:", decoded);
+                const role = decoded.role;
+
+                localStorage.setItem("token", token);
+                localStorage.setItem("role", role);
 
                 setNotification({ message: "Successful Login!", success: true });
 
                 setTimeout(() => {
-                    window.location.href = "/home";
+                    if (role === "ADMIN") {
+                        window.location.href = "/home";
+                    } else if (role === "USER") {
+                        window.location.href = "/books-dashboard";
+                    } else {
+                        window.location.href = "/login";
+                    }
                 }, 700);
             } else {
                 setNotification({ message: "Invalid Credentials.", success: false });
