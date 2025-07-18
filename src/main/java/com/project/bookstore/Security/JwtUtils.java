@@ -1,5 +1,6 @@
 package com.project.bookstore.Security;
 
+import com.project.bookstore.Entity.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,8 +24,15 @@ public class JwtUtils {
     }
 
     public String generateJwtToken(UserDetails userDetails) {
+        String role = "USER";
+
+        if (userDetails instanceof User) {
+            role = ((User) userDetails).getRole().name();
+        }
+
         return Jwts.builder()
                 .setSubject(userDetails.getUsername())
+                .claim("role", role)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
                 .signWith(key, SignatureAlgorithm.HS512)

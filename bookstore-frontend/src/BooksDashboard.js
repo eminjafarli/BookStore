@@ -4,6 +4,7 @@ import UploadBookModal from "./UploadBookModal";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import {useNavigate} from "react-router-dom";
+import {jwtDecode} from "jwt-decode";
 
 const Container = styled.div`
     min-height: 100vh;
@@ -87,10 +88,24 @@ function BooksDashboard() {
     const [books, setBooks] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [notification, setNotification] = useState(null);
+    const [userRole, setUserRole] = useState("");
 
     useEffect(() => {
+        decodeRole();
         fetchBooks();
     }, []);
+
+    const decodeRole = () => {
+        const token = localStorage.getItem("token");
+        if (token) {
+            try {
+                const decoded = jwtDecode(token);
+                setUserRole(decoded.role);
+            } catch (err) {
+                console.error("Failed to decode token:", err);
+            }
+        }
+    };
 
     const fetchBooks = async () => {
         try {
@@ -117,16 +132,14 @@ function BooksDashboard() {
 
     return (
         <Container>
-            <BackButton
-                onClick={() => {
-                    navigate("/home");
-                }}
-            >
-                Back
-            </BackButton>
+            <BackButton onClick={() => navigate("/home")}>Back</BackButton>
+
             <Header>
                 <Title>Books Dashboard</Title>
-                <EditButton onClick={() => setShowModal(true)}>Add Book</EditButton>
+                {/* ✅ Add Book visible to USER and ADMIN */}
+                {userRole === "USER" || userRole === "ADMIN" ? (
+                    <EditButton onClick={() => setShowModal(true)}>Add Book</EditButton>
+                ) : null}
             </Header>
 
             {books.map((book) => (
@@ -135,6 +148,11 @@ function BooksDashboard() {
                         <strong>{book.title}</strong> — {book.author} <br />
                         Uploaded by {book.user?.username}
                     </BookInfo>
+
+                    {/* ❌ No edit button for USER role */}
+                    {userRole === "ADMIN" && (
+                        <EditButton>Edit</EditButton>
+                    )}
                 </Card>
             ))}
 
