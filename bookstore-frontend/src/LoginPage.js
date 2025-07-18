@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import styled from "styled-components";
+import {AnimatePresence, motion} from "framer-motion";
 
 const Container = styled.div`
     height: 97vh;
@@ -17,6 +18,20 @@ const FormBox = styled.div`
     border-radius: 10px;
     width: 350px;
     text-align: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+`;
+
+const Notification = styled(motion.div)`
+    position: fixed;
+    top: 20px;
+    left: 44%;
+    transform: translateX(-50%);
+    padding: 12px 24px;
+    border-radius: 8px;
+    color: white;
+    background: ${props => (props.success ? "#28a745" : "#dc3545")};
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 `;
 
 const Title = styled.h2`
@@ -43,6 +58,7 @@ const Button = styled.button`
     border: none;
     border-radius: 6px;
     cursor: pointer;
+    transition: 0.2s;
 
     &:hover {
         background-color: #0056b3;
@@ -64,6 +80,7 @@ const SignUpLink = styled.div`
 `;
 
 function LoginPage() {
+    const [notification, setNotification] = useState(null);
     const [formData, setFormData] = useState({ username: "", password: "" });
     const navigate = useNavigate();
 
@@ -82,14 +99,21 @@ function LoginPage() {
             if (response.ok) {
                 const data = await response.json();
                 localStorage.setItem("token", data.token);
-                alert("Login successful!");
-                navigate("/users-dashboard");
+                setNotification({ message: "Successful Login!", success: true });
+                setTimeout(() => {
+                    navigate("/");
+                }, 700);
             } else {
-                alert("Invalid credentials");
+                setNotification({ message: "Invalid Credentials.", success: false });
+                setTimeout(() => {
+                    setNotification(null)
+                }, 1500);
             }
         } catch (err) {
-            console.error(err);
-            alert("Error occurred");
+            setNotification({ message: "Error Occurred.", success: false });
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
         }
     };
 
@@ -121,7 +145,21 @@ function LoginPage() {
                     Don't have an account? <Link to="/signup">Sign Up</Link>
                 </SignUpLink>
             </FormBox>
+            <AnimatePresence>
+                {notification && (
+                    <Notification
+                        success={notification.success}
+                        initial={{ y: -100, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        exit={{ y: -100, opacity: 0 }}
+                        transition={{ duration: 0.5 }}
+                    >
+                        {notification.message}
+                    </Notification>
+                )}
+            </AnimatePresence>
         </Container>
+
     );
 }
 

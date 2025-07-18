@@ -32,6 +32,7 @@ const Input = styled.input`
   width: 100%;
   padding: 12px;
   margin-bottom: 16px;
+    margin-left: -13px;
   border: 1px solid #ccc;
   border-radius: 8px;
   font-size: 16px;
@@ -81,19 +82,55 @@ function UploadBookModal({ onClose }) {
         title: "",
         author: "",
         price: "",
-        isbn: ""
+        isbn: "",
+        file: null,
     });
 
-    const handleChange = (e) =>
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+    const handleChange = (e) => {
+        const { name, value, files } = e.target;
+        if (name === "file") {
+            setFormData({ ...formData, file: files[0] });
+        } else {
+            setFormData({ ...formData, [name]: value });
+        }
+    };
+
+    const handleSubmit = async () => {
+        const token = localStorage.getItem("token");
+        const form = new FormData();
+
+        form.append("title", formData.title);
+        form.append("author", formData.author);
+        form.append("price", formData.price);
+        form.append("isbn", formData.isbn);
+        if (formData.file) {
+            form.append("file", formData.file);
+        }
+
+        try {
+            const response = await fetch("http://localhost:8080/api/books", {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+                body: form,
+            });
+
+            if (response.ok) {
+                alert("Book added successfully");
+                onClose();
+            } else {
+                alert("Failed to upload book");
+            }
+        } catch (err) {
+            console.error("Upload error:", err);
+            alert("Something went wrong");
+        }
+    };
 
     return (
         <AnimatePresence>
-            <Backdrop
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-            >
+            <Backdrop initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                 <ModalWrapper
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
@@ -129,14 +166,21 @@ function UploadBookModal({ onClose }) {
                         onChange={handleChange}
                         placeholder="ISBN"
                     />
+                    <Input
+                        type="file"
+                        name="file"
+                        onChange={handleChange}
+                        accept=".pdf,.epub,.jpg,.png"
+                    />
                     <ButtonGroup>
                         <Button onClick={onClose}>Cancel</Button>
-                        <Button>Add Book</Button>
+                        <Button onClick={handleSubmit}>Add Book</Button>
                     </ButtonGroup>
                 </ModalWrapper>
             </Backdrop>
         </AnimatePresence>
     );
 }
+
 
 export default UploadBookModal;

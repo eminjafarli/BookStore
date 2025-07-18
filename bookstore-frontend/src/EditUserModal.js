@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, {useEffect, useRef, useState} from "react";
 import styled from "styled-components";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -29,6 +29,7 @@ const Title = styled.h2`
 `;
 
 const Input = styled.input`
+    margin-left: -13px;
     width: 100%;
     padding: 12px;
     margin-bottom: 16px;
@@ -79,7 +80,7 @@ const Button = styled.button`
 const Notification = styled(motion.div)`
     position: fixed;
     top: 20px;
-    left: 50%;
+    left: 42%;
     transform: translateX(-50%);
     padding: 12px 24px;
     border-radius: 8px;
@@ -88,15 +89,19 @@ const Notification = styled(motion.div)`
     z-index: 1000;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 `;
-
 function EditUserModal({ user, onClose }) {
-    const [formData, setFormData] = useState({
-        username: user.username,
-        name: user.name,
-    });
-
+    const [formData, setFormData] = useState({ username: "", name: "" });
     const [notification, setNotification] = useState(null);
     const nameInputRef = useRef();
+
+    useEffect(() => {
+        if (user) {
+            setFormData({
+                username: user.username || "",
+                name: user.name || "",
+            });
+        }
+    }, [user]);
 
     const handleChange = (e) =>
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -140,6 +145,8 @@ function EditUserModal({ user, onClose }) {
             setNotification({ message: "Something went wrong.", success: false });
         }
     };
+
+    if (!user) return null;
 
     return (
         <>

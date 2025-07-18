@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import EditUserModal from "./EditUserModal";
 import styled from "styled-components";
+import {useNavigate} from "react-router-dom";
 
 const Container = styled.div`
     min-height: 100vh;
@@ -32,7 +33,22 @@ const Card = styled.div`
     justify-content: space-between;
     align-items: center;
 `;
+const BackButton = styled.button`
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  padding: 10px 18px;
+  font-size: 14px;
+  background-color: grey;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
 
+  &:hover {
+    background-color: dimgrey;
+  }
+`;
 const UserInfo = styled.div`
     font-size: 16px;
 `;
@@ -52,6 +68,7 @@ const EditButton = styled.button`
 `;
 
 function UsersDashboard() {
+    const navigate = useNavigate();
     const [users, setUsers] = useState([]);
     const [selectedUser, setSelectedUser] = useState(null);
     const [showEditModal, setShowEditModal] = useState(false);
@@ -64,6 +81,13 @@ function UsersDashboard() {
 
     return (
         <Container>
+            <BackButton
+                onClick={() => {
+                    navigate("/");
+                }}
+            >
+                Back
+            </BackButton>
             <Header>
                 <Title>Users Dashboard</Title>
             </Header>
