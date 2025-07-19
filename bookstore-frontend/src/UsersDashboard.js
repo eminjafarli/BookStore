@@ -96,7 +96,7 @@ function UsersDashboard() {
                 <Card key={user.id}>
                     <UserInfo>
                         <strong>{user.username}</strong> — {user.name} <br />
-                        📚 {user.books.length} books
+                        📚 {user.books ? user.books.length : 0} books
                     </UserInfo>
                     <EditButton onClick={() => {
                         setSelectedUser(user);
