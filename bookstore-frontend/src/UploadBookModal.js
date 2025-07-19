@@ -1,88 +1,86 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { motion, AnimatePresence } from "framer-motion";
+import axios from "axios";
 
 const Backdrop = styled(motion.div)`
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 999;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
 `;
 
 const ModalWrapper = styled(motion.div)`
-  background: #fff;
-  padding: 30px;
-  border-radius: 12px;
-  width: 100%;
-  max-width: 450px;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+    background: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 450px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
 `;
 
 const Title = styled.h2`
-  margin-bottom: 20px;
-  font-size: 22px;
-  font-weight: bold;
-  color: #333;
+    margin-bottom: 20px;
+    font-size: 22px;
+    font-weight: bold;
+    color: #333;
 `;
 
 const Input = styled.input`
-  width: 100%;
-  padding: 12px;
-  margin-bottom: 16px;
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 16px;
     margin-left: -13px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
 
-  &:focus {
-    border-color: #007bff;
-    outline: none;
-    box-shadow: 0 0 4px rgba(0, 123, 255, 0.5);
-  }
+    &:focus {
+        border-color: #007bff;
+        outline: none;
+        box-shadow: 0 0 4px rgba(0, 123, 255, 0.5);
+    }
 `;
 
 const ButtonGroup = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
 `;
 
 const Button = styled.button`
-  padding: 10px 16px;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  cursor: pointer;
-  transition: background 0.2s ease;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s ease;
 
-  &:first-child {
-    background: #e0e0e0;
-    color: #333;
-  }
+    &:first-child {
+        background: #e0e0e0;
+        color: #333;
+    }
 
-  &:last-child {
-    background: #007bff;
-    color: white;
-  }
+    &:last-child {
+        background: #007bff;
+        color: white;
+    }
 
-  &:hover:first-child {
-    background: #c7c7c7;
-  }
+    &:hover:first-child {
+        background: #c7c7c7;
+    }
 
-  &:hover:last-child {
-    background: #0056b3;
-  }
+    &:hover:last-child {
+        background: #0056b3;
+    }
 `;
 
-function UploadBookModal({ onClose }) {
+function UploadBookModal({ onClose, onBookAdded, userId }) {
     const [formData, setFormData] = useState({
         title: "",
-        author: "",
-        price: "",
-        isbn: "",
         file: null,
     });
 
@@ -100,24 +98,23 @@ function UploadBookModal({ onClose }) {
         const form = new FormData();
 
         form.append("title", formData.title);
-        form.append("author", formData.author);
-        form.append("price", formData.price);
-        form.append("isbn", formData.isbn);
         if (formData.file) {
             form.append("file", formData.file);
         }
+        if (userId) {
+            form.append("userId", userId);
+        }
 
         try {
-            const response = await fetch("http://localhost:8080/api/books", {
-                method: "POST",
+            const response = await axios.post("http://localhost:8080/api/books", form, {
                 headers: {
                     Authorization: `Bearer ${token}`,
+
                 },
-                body: form,
             });
 
-            if (response.ok) {
-                alert("Book added successfully");
+            if (response.status === 200 || response.status === 201) {
+                if (onBookAdded) onBookAdded();
                 onClose();
             } else {
                 alert("Failed to upload book");
@@ -146,27 +143,6 @@ function UploadBookModal({ onClose }) {
                         placeholder="Book Title"
                     />
                     <Input
-                        type="text"
-                        name="author"
-                        value={formData.author}
-                        onChange={handleChange}
-                        placeholder="Author"
-                    />
-                    <Input
-                        type="text"
-                        name="price"
-                        value={formData.price}
-                        onChange={handleChange}
-                        placeholder="Price"
-                    />
-                    <Input
-                        type="text"
-                        name="isbn"
-                        value={formData.isbn}
-                        onChange={handleChange}
-                        placeholder="ISBN"
-                    />
-                    <Input
                         type="file"
                         name="file"
                         onChange={handleChange}
@@ -181,6 +157,5 @@ function UploadBookModal({ onClose }) {
         </AnimatePresence>
     );
 }
-
 
 export default UploadBookModal;
