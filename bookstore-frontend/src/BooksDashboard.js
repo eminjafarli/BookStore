@@ -34,6 +34,23 @@ const Card = styled.div`
   align-items: center;
 `;
 
+const AddButton = styled.button`
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    padding: 10px 18px;
+    font-size: 14px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+
+    &:hover {
+        background-color: #218838;
+    }
+`;
+
 const BackButton = styled.button`
   position: absolute;
   top: 20px;
@@ -126,7 +143,7 @@ function BooksDashboard() {
             </BackButton>
             <Header>
                 <Title>Books Dashboard</Title>
-                <EditButton onClick={() => setShowModal(true)}>Add Book</EditButton>
+                <AddButton onClick={() => setShowModal(true)}>Add Book</AddButton>
             </Header>
 
             {books.map((book) => (
