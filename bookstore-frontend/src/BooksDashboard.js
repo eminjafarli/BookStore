@@ -4,6 +4,8 @@ import UploadBookModal from "./UploadBookModal";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import {useNavigate} from "react-router-dom";
+import EditBookModal from "./EditBookModal";
+
 
 const Container = styled.div`
     min-height: 100vh;
@@ -33,6 +35,23 @@ const Card = styled.div`
   justify-content: space-between;
   align-items: center;
 `;
+const LogoutButton = styled.button`
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  padding: 10px 18px;
+  font-size: 14px;
+  background-color: #ff4d4f;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #d9363e;
+  }
+`;
+
 
 const AddButton = styled.button`
     position: absolute;
@@ -104,6 +123,9 @@ function BooksDashboard() {
     const [books, setBooks] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [notification, setNotification] = useState(null);
+    const [editBook, setEditBook] = useState(null);
+    const role = localStorage.getItem("role");
+
 
     useEffect(() => {
         fetchBooks();
@@ -134,6 +156,18 @@ function BooksDashboard() {
 
     return (
         <Container>
+            {role === "USER" && (
+            <LogoutButton
+                onClick={() => {
+                    localStorage.removeItem("token");
+                    localStorage.removeItem("user");
+                    navigate("/login");
+                }}
+            >
+                Logout
+            </LogoutButton>
+                )}
+            {role === "ADMIN" && (
             <BackButton
                 onClick={() => {
                     navigate("/home");
@@ -141,6 +175,7 @@ function BooksDashboard() {
             >
                 Back
             </BackButton>
+                )}
             <Header>
                 <Title>Books Dashboard</Title>
                 <AddButton onClick={() => setShowModal(true)}>Add Book</AddButton>
@@ -149,9 +184,12 @@ function BooksDashboard() {
             {books.map((book) => (
                 <Card key={book.id}>
                     <BookInfo>
-                        <strong>{book.title}</strong> — {book.author} <br />
+                        <strong>{book.title}</strong><br />
                         Uploaded by {book.user?.username}
                     </BookInfo>
+                    {role === "ADMIN" && (
+                    <EditButton onClick={() => setEditBook(book)}>Edit</EditButton>
+                        )}
                 </Card>
             ))}
 
@@ -163,6 +201,20 @@ function BooksDashboard() {
                     />
                 )}
             </AnimatePresence>
+            <AnimatePresence>
+                {editBook && (
+                    <EditBookModal
+                        book={editBook}
+                        onClose={() => setEditBook(null)}
+                        onBookUpdated={() => {
+                            fetchBooks();
+                            setNotification({ message: "Book updated successfully!", success: true });
+                            setTimeout(() => setNotification(null), 1500);
+                        }}
+                    />
+                )}
+            </AnimatePresence>
+
 
             <AnimatePresence>
                 {notification && (

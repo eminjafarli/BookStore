@@ -27,6 +27,21 @@ public class BookController {
         return bookService.getAllBooks();
     }
 
+    @PutMapping("/{bookId}")
+    public ResponseEntity<Book> updateBook(
+            @PathVariable Long bookId,
+            @RequestParam(value = "title", required = false) String title,
+            @RequestParam(value = "file", required = false) MultipartFile file
+    ) {
+        try {
+            Book updated = bookService.updateBook(bookId, title, file);
+            return ResponseEntity.ok(updated);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+
     @GetMapping("/user/{userId}")
     public List<Book> getBooksByUser(@PathVariable Long userId) {
         return bookService.getBooksByUserId(userId);
