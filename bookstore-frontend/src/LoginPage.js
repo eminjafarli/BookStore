@@ -102,7 +102,6 @@ function LoginPage() {
                 const token = data.token;
 
                 const decoded = jwtDecode(token);
-                console.log("Decoded JWT:", decoded);
                 const role = decoded.role;
 
                 localStorage.setItem("token", token);
