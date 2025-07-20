@@ -43,6 +43,23 @@ const Input = styled.input`
         box-shadow: 0 0 4px rgba(0, 123, 255, 0.5);
     }
 `;
+const Select = styled.select`
+    margin-left: -13px;
+    width: 477px;
+    height: 44px;
+    padding: 12px;
+    margin-bottom: 16px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+
+    &:focus {
+        border-color: #007bff;
+        outline: none;
+        box-shadow: 0 0 4px rgba(0, 123, 255, 0.5);
+    }
+`;
+
 
 const ButtonGroup = styled.div`
     display: flex;
@@ -90,15 +107,18 @@ const Notification = styled(motion.div)`
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 `;
 function EditUserModal({ user, onClose }) {
-    const [formData, setFormData] = useState({ username: "", name: "" });
+    const [formData, setFormData] = useState({ username: "", name: "", role: "" });
     const [notification, setNotification] = useState(null);
     const nameInputRef = useRef();
+
+    const roles = ["ADMIN", "USER"];
 
     useEffect(() => {
         if (user) {
             setFormData({
                 username: user.username || "",
                 name: user.name || "",
+                role: user.role || "",
             });
         }
     }, [user]);
@@ -112,7 +132,7 @@ function EditUserModal({ user, onClose }) {
             if (nextInputRef && nextInputRef.current) {
                 nextInputRef.current.focus();
             } else {
-                handleSubmit(e);
+                e.target.form.requestSubmit();
             }
         }
     };
@@ -168,6 +188,7 @@ function EditUserModal({ user, onClose }) {
                                 placeholder="Username"
                                 onKeyDown={(e) => handleKeyDown(e, nameInputRef)}
                                 autoFocus
+                                required
                             />
                             <Input
                                 type="text"
@@ -177,7 +198,20 @@ function EditUserModal({ user, onClose }) {
                                 placeholder="Name"
                                 ref={nameInputRef}
                                 onKeyDown={(e) => handleKeyDown(e, null)}
+                                required
                             />
+                            <Select
+                                name="role"
+                                value={formData.role}
+                                onChange={handleChange}
+                            >
+                                {roles.map((role) => (
+                                    <option key={role} value={role}>
+                                        {role}
+                                    </option>
+                                ))}
+                            </Select>
+
                             <ButtonGroup>
                                 <Button type="button" onClick={onClose}>
                                     Cancel
