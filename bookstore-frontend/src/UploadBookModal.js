@@ -19,6 +19,7 @@ const ModalWrapper = styled(motion.div)`
     border-radius: 12px;
     width: 100%;
     max-width: 450px;
+    max-height: 210px;
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
 `;
 
@@ -49,6 +50,8 @@ const ButtonGroup = styled.div`
     display: flex;
     justify-content: flex-end;
     gap: 10px;
+    margin-right: -13px;
+    margin-top: -1px;
 `;
 const Notification = styled(motion.div)`
     position: fixed;

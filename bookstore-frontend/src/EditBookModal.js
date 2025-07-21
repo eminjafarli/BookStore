@@ -80,11 +80,6 @@ const Input = styled.input`
     }
 `;
 
-const ButtonGroup = styled.div`
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-`;
 const Notification = styled(motion.div)`
     position: fixed;
     top: 20px;

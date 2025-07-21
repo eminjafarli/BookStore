@@ -2,8 +2,12 @@ package com.project.bookstore.Controller;
 
 import com.project.bookstore.Entity.Book;
 import com.project.bookstore.Entity.User;
+import com.project.bookstore.Repository.BookRepository;
 import com.project.bookstore.Services.BookService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -11,20 +15,77 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.*;
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/books")
 @RequiredArgsConstructor
 public class BookController {
+
     private final BookService bookService;
+    private final BookRepository bookRepository;
 
     @GetMapping
     public List<Book> getAllBooks() {
         return bookService.getAllBooks();
+    }
+
+    @GetMapping("/download/{bookId}")
+    public ResponseEntity<Resource> downloadBook(@PathVariable Long bookId) throws IOException {
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new RuntimeException("Book not found"));
+
+        String filename = book.getFilename();
+        Path booksDir = Paths.get("").toAbsolutePath().resolve("books");
+        Path filePath = booksDir.resolve(filename).normalize();
+
+        if (!Files.exists(filePath)) {
+            throw new NoSuchFileException("File not found: " + filename);
+        }
+
+        Resource resource = new UrlResource(filePath.toUri());
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                .body(resource);
+    }
+
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Book> uploadBook(
+            @RequestParam("title") String title,
+            @RequestParam("file") MultipartFile file,
+            Authentication authentication
+    ) {
+        try {
+            String originalFilename = file.getOriginalFilename();
+            if (originalFilename == null) {
+                return ResponseEntity.badRequest().build();
+            }
+
+            Path booksDir = Paths.get("").toAbsolutePath().resolve("books");
+            if (!Files.exists(booksDir)) {
+                Files.createDirectories(booksDir);
+            }
+
+            Path filePath = booksDir.resolve(originalFilename);
+            file.transferTo(filePath.toFile());
+
+            User user = (User) authentication.getPrincipal();
+
+            Book book = Book.builder()
+                    .title(title)
+                    .filename(originalFilename)
+                    .user(user)
+                    .build();
+
+            return ResponseEntity.ok(bookService.saveBook(book));
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @PutMapping("/{bookId}")
@@ -41,52 +102,29 @@ public class BookController {
         }
     }
 
-
     @GetMapping("/user/{userId}")
     public List<Book> getBooksByUser(@PathVariable Long userId) {
         return bookService.getBooksByUserId(userId);
     }
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Book> uploadBook(
-            @RequestParam("title") String title,
-            @RequestParam("file") MultipartFile file,
-            Authentication authentication
-    ) {
-        try {
-            String filename = file.getOriginalFilename();
-            String uploadDir = "C:\\Users\\ASUS\\Desktop";
-            File uploadPath = new File(uploadDir);
-            if (!uploadPath.exists()) {
-                uploadPath.mkdirs();
-            }
-
-            File destinationFile = new File(uploadDir + File.separator + filename);
-            file.transferTo(destinationFile);
-
-            User user = (User) authentication.getPrincipal();
-
-            Book book = Book.builder()
-                    .title(title)
-                    .filename(filename)
-                    .user(user)
-                    .build();
-
-            return ResponseEntity.ok(bookService.saveBook(book));
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-    @PostMapping
-    public ResponseEntity<Book> uploadBook(@RequestBody Book book) {
-        return ResponseEntity.ok(bookService.saveBook(book));
-    }
 
     @DeleteMapping("/{bookId}")
     public ResponseEntity<Void> deleteBook(@PathVariable Long bookId) {
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new RuntimeException("Book not found"));
+
+        String filename = book.getFilename();
+        Path booksDir = Paths.get("").toAbsolutePath().resolve("books");
+        Path filePath = booksDir.resolve(filename);
+
+        try {
+            Files.deleteIfExists(filePath);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        
         bookService.deleteBook(bookId);
+
         return ResponseEntity.ok().build();
     }
+
 }
