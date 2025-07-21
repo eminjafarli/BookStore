@@ -8,7 +8,7 @@ import EditBookModal from "./EditBookModal";
 
 
 const Container = styled.div`
-    min-height: 100vh;
+    min-height: 80vh;
     background: #ffffff;
     font-family: Arial, sans-serif;
     padding: 40px;
@@ -209,6 +209,11 @@ function BooksDashboard() {
                         onBookUpdated={() => {
                             fetchBooks();
                             setNotification({ message: "Book updated successfully!", success: true });
+                            setTimeout(() => setNotification(null), 1500);
+                        }}
+                        onBookDeleted={() => {
+                            fetchBooks();
+                            setNotification({ message: "Book deleted successfully!", success: true });
                             setTimeout(() => setNotification(null), 1500);
                         }}
                     />

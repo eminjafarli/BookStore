@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
+import ConfirmModal from "./ConfirmModal";
 
 const Backdrop = styled(motion.div)`
     position: fixed;
@@ -124,8 +125,9 @@ const Button = styled.button`
     }
 `;
 
-function EditBookModal({ book, onClose, onBookUpdated }) {
+function EditBookModal({ book, onClose, onBookUpdated,onBookDeleted }) {
     const [existingFileName, setExistingFileName] = useState("");
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [notification, setNotification] = useState(null);
     const [formData, setFormData] = useState({
         title: book?.title || "",
@@ -160,6 +162,21 @@ function EditBookModal({ book, onClose, onBookUpdated }) {
             }
         }
     };
+    const handleDeleteBook = async () => {
+        const token = localStorage.getItem("token");
+
+        try {
+            await axios.delete(`http://localhost:8080/api/books/${book.id}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            onBookDeleted?.();
+            window.location.reload();
+        } catch (err) {
+            console.error("Failed to delete book", err);
+        }
+    };
+
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         const token = localStorage.getItem("token");
@@ -232,10 +249,20 @@ function EditBookModal({ book, onClose, onBookUpdated }) {
                             </FileName>
                         </FileInputWrapper>
 
-                        <ButtonGroup>
-                            <Button type="button" onClick={onClose}>Cancel</Button>
-                            <Button type="submit">Update Book</Button>
-                        </ButtonGroup>
+                        <div style={{ display: "flex", justifyContent: "space-between", marginTop: "20px",marginBottom:"-12px",marginLeft:"-13px" }}>
+                            <Button type="button" onClick={() => setShowConfirmModal(true)} style={{ background: "#dc3545", color: "#fff" }}>
+                                Delete
+                            </Button>
+
+                            <div style={{ display: "flex", gap: "10px",marginLeft:"255px" }}>
+                                <Button type="button" onClick={onClose}>
+                                    Cancel
+                                </Button>
+                                <Button type="submit">
+                                    Save
+                                </Button>
+                            </div>
+                        </div>
                     </form>
                 </ModalWrapper>
             </Backdrop>
@@ -252,6 +279,16 @@ function EditBookModal({ book, onClose, onBookUpdated }) {
                     </Notification>
                 )}
             </AnimatePresence>
+            <AnimatePresence>
+                {showConfirmModal && (
+                    <ConfirmModal
+                        title="Are you sure you want to delete this book?"
+                        onCancel={() => setShowConfirmModal(false)}
+                        onConfirm={handleDeleteBook}
+                    />
+                )}
+            </AnimatePresence>
+
         </AnimatePresence>
 
     );

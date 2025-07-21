@@ -5,7 +5,7 @@ import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 
 const Container = styled.div`
-    min-height: 100vh;
+    min-height: 80vh;
     background: #ffffff;
     font-family: Arial, sans-serif;
     padding: 40px;
@@ -74,6 +74,10 @@ function UsersDashboard() {
     const [bookCounts, setBookCounts] = useState({});
     const [selectedUser, setSelectedUser] = useState(null);
     const [showEditModal, setShowEditModal] = useState(false);
+    const handleUserDeleted = (id) => {
+        setUsers((prevUsers) => prevUsers.filter((u) => u.id !== id));
+        setShowEditModal(false);
+    };
 
     useEffect(() => {
         axios
@@ -126,6 +130,7 @@ function UsersDashboard() {
                             setSelectedUser(user);
                             setShowEditModal(true);
                         }}
+
                     >
                         Edit
                     </EditButton>
@@ -136,6 +141,7 @@ function UsersDashboard() {
                 <EditUserModal
                     user={selectedUser}
                     onClose={() => setShowEditModal(false)}
+                    onUserDeleted={handleUserDeleted}
                 />
             )}
         </Container>

@@ -1,6 +1,8 @@
 import React, {useEffect, useRef, useState} from "react";
 import styled from "styled-components";
 import { motion, AnimatePresence } from "framer-motion";
+import axios from "axios";
+import ConfirmModal from "./ConfirmModal";
 
 const Backdrop = styled(motion.div)`
     position: fixed;
@@ -60,13 +62,6 @@ const Select = styled.select`
     }
 `;
 
-
-const ButtonGroup = styled.div`
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-`;
-
 const Button = styled.button`
     padding: 10px 16px;
     border: none;
@@ -106,10 +101,12 @@ const Notification = styled(motion.div)`
     z-index: 1000;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 `;
-function EditUserModal({ user, onClose }) {
+function EditUserModal({ user, onClose,onUserDeleted }) {
     const [formData, setFormData] = useState({ username: "", name: "", role: "" });
     const [notification, setNotification] = useState(null);
     const nameInputRef = useRef();
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+
 
     const roles = ["ADMIN", "USER"];
 
@@ -136,6 +133,21 @@ function EditUserModal({ user, onClose }) {
             }
         }
     };
+
+    const handleDeleteUser = async () => {
+        const token = localStorage.getItem("token");
+        try {
+            await axios.delete(`http://localhost:8080/api/users/delete/${user.id}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            onUserDeleted?.();
+            window.location.reload();
+        } catch (err) {
+            console.error("Failed to delete user", err);
+        }
+    };
+
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -211,13 +223,21 @@ function EditUserModal({ user, onClose }) {
                                     </option>
                                 ))}
                             </Select>
-
-                            <ButtonGroup>
-                                <Button type="button" onClick={onClose}>
-                                    Cancel
+                            <div style={{ display: "flex", justifyContent: "space-between", marginTop: "3px",marginBottom:"-12px",marginLeft:"-13px" }}>
+                                <Button type="button" onClick={() => setShowConfirmModal(true)} style={{ background: "#dc3545", color: "#fff" }}>
+                                    Delete
                                 </Button>
-                                <Button type="submit">Save</Button>
-                            </ButtonGroup>
+
+                                <div style={{ display: "flex", gap: "10px",marginLeft:"255px" }}>
+                                    <Button type="button" onClick={onClose}>
+                                        Cancel
+                                    </Button>
+                                    <Button type="submit">
+                                        Save
+                                    </Button>
+                                </div>
+                            </div>
+
                         </form>
                     </ModalWrapper>
                 </Backdrop>
@@ -233,6 +253,13 @@ function EditUserModal({ user, onClose }) {
                     >
                         {notification.message}
                     </Notification>
+                )}
+                {showConfirmModal && (
+                    <ConfirmModal
+                        title="Are you sure you want to delete this user?"
+                        onCancel={() => setShowConfirmModal(false)}
+                        onConfirm={handleDeleteUser}
+                    />
                 )}
             </AnimatePresence>
         </>

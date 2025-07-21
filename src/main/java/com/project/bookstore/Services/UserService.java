@@ -20,6 +20,9 @@ public class UserService {
     public List<User> getAllUsers() {
         return userRepository.findAllOrderByIdAsc();
     }
+    public void deleteUser(Long userId) {
+        userRepository.deleteById(userId);
+    }
 
     public User updateUser(Long id, User updatedUser) {
         return userRepository.findById(id)
