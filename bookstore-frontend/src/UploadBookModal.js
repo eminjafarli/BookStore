@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useRef, useState} from "react";
 import styled from "styled-components";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
@@ -50,6 +50,18 @@ const ButtonGroup = styled.div`
     justify-content: flex-end;
     gap: 10px;
 `;
+const Notification = styled(motion.div)`
+    position: fixed;
+    top: 20px;
+    left: 42%;
+    transform: translateX(-50%);
+    padding: 12px 24px;
+    border-radius: 8px;
+    color: white;
+    background: ${props => (props.success ? "#28a745" : "#dc3545")};
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+`;
 
 const Button = styled.button`
     padding: 10px 16px;
@@ -79,10 +91,9 @@ const Button = styled.button`
 `;
 
 function UploadBookModal({ onClose, onBookAdded, userId }) {
-    const [formData, setFormData] = useState({
-        title: "",
-        file: null,
-    });
+    const [notification, setNotification] = useState(null);
+    const [formData, setFormData] = useState({ title: "", file: null });
+    const formRef = useRef();
 
     const handleChange = (e) => {
         const { name, value, files } = e.target;
@@ -93,35 +104,29 @@ function UploadBookModal({ onClose, onBookAdded, userId }) {
         }
     };
 
-    const handleSubmit = async () => {
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
         const token = localStorage.getItem("token");
         const form = new FormData();
-
         form.append("title", formData.title);
-        if (formData.file) {
-            form.append("file", formData.file);
-        }
-        if (userId) {
-            form.append("userId", userId);
-        }
+        if (formData.file) form.append("file", formData.file);
+        if (userId) form.append("userId", userId);
 
         try {
             const response = await axios.post("http://localhost:8080/api/books", form, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-
-                },
+                headers: { Authorization: `Bearer ${token}` },
             });
 
             if (response.status === 200 || response.status === 201) {
-                if (onBookAdded) onBookAdded();
+                onBookAdded?.();
                 onClose();
             } else {
-                alert("Failed to upload book");
+                setNotification({ message: "Failed to upload book", success: true });
             }
         } catch (err) {
             console.error("Upload error:", err);
-            alert("Something went wrong");
+            setNotification({ message: "Something went wrong", success: true });
         }
     };
 
@@ -135,25 +140,43 @@ function UploadBookModal({ onClose, onBookAdded, userId }) {
                     transition={{ duration: 0.3 }}
                 >
                     <Title>Add New Book</Title>
-                    <Input
-                        type="text"
-                        name="title"
-                        value={formData.title}
-                        onChange={handleChange}
-                        placeholder="Book Title"
-                    />
-                    <Input
-                        type="file"
-                        name="file"
-                        onChange={handleChange}
-                        accept=".pdf,.epub,.jpg,.png"
-                    />
-                    <ButtonGroup>
-                        <Button onClick={onClose}>Cancel</Button>
-                        <Button onClick={handleSubmit}>Add Book</Button>
-                    </ButtonGroup>
+
+                    <form ref={formRef} onSubmit={handleSubmit}>
+                        <Input
+                            type="text"
+                            name="title"
+                            value={formData.title}
+                            onChange={handleChange}
+                            placeholder="Book Title"
+                            required
+                        />
+                        <Input
+                            type="file"
+                            name="file"
+                            onChange={handleChange}
+                            accept=".pdf,.epub,.jpg,.png"
+                            required
+                        />
+                        <ButtonGroup>
+                            <Button type="button" onClick={onClose}>Cancel</Button>
+                            <Button type="submit">Add Book</Button>
+                        </ButtonGroup>
+                    </form>
                 </ModalWrapper>
             </Backdrop>
+            <AnimatePresence>
+                {notification && (
+                    <Notification
+                        success={notification.success}
+                        initial={{ y: -100, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        exit={{ y: -100, opacity: 0 }}
+                        transition={{ duration: 0.5 }}
+                    >
+                        {notification.message}
+                    </Notification>
+                )}
+            </AnimatePresence>
         </AnimatePresence>
     );
 }

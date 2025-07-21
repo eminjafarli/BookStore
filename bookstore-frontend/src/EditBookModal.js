@@ -1,89 +1,136 @@
-import React, {useState, useEffect, useRef} from "react";
+import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 
 const Backdrop = styled(motion.div)`
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 999;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+`;
+const FileInputWrapper = styled.div`
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 16px;
+    margin-left: -13px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+
+`;
+
+const CustomFileLabel = styled.label`
+    background: #e0e0e0;
+    color: #333;
+    padding: 8px 11px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-left: -8px;
+    transition: background 0.2s ease;
+    &:hover {
+        background: #c7c7c7;
+    }
+`;
+
+const HiddenInput = styled.input`
+    display: none;
+`;
+
+const FileName = styled.span`
+    font-size: 14px;
+    margin-left: 7px;
+    color: #555;
 `;
 
 const ModalWrapper = styled(motion.div)`
-  background: #fff;
-  padding: 30px;
-  border-radius: 12px;
-  width: 100%;
-  max-width: 450px;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+    background: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 450px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
 `;
 
 const Title = styled.h2`
-  margin-bottom: 20px;
-  font-size: 22px;
-  font-weight: bold;
-  color: #333;
+    margin-bottom: 20px;
+    font-size: 22px;
+    font-weight: bold;
+    color: #333;
 `;
 
 const Input = styled.input`
-  width: 100%;
-  padding: 12px;
-  margin-bottom: 16px;
-  margin-left: -13px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 16px;
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 16px;
+    margin-left: -13px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
 
-  &:focus {
-    border-color: #007bff;
-    outline: none;
-    box-shadow: 0 0 4px rgba(0, 123, 255, 0.5);
-  }
+    &:focus {
+        border-color: #007bff;
+        outline: none;
+        box-shadow: 0 0 4px rgba(0, 123, 255, 0.5);
+    }
 `;
 
 const ButtonGroup = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+`;
+const Notification = styled(motion.div)`
+    position: fixed;
+    top: 20px;
+    left: 42%;
+    transform: translateX(-50%);
+    padding: 12px 24px;
+    border-radius: 8px;
+    color: white;
+    background: ${props => (props.success ? "#28a745" : "#dc3545")};
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 `;
 
 const Button = styled.button`
-  padding: 10px 16px;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  cursor: pointer;
-  transition: background 0.2s ease;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s ease;
 
-  &:first-child {
-    background: #e0e0e0;
-    color: #333;
-  }
+    &:first-child {
+        background: #e0e0e0;
+        color: #333;
+    }
 
-  &:last-child {
-    background: #007bff;
-    color: white;
-  }
+    &:last-child {
+        background: #007bff;
+        color: white;
+    }
 
-  &:hover:first-child {
-    background: #c7c7c7;
-  }
+    &:hover:first-child {
+        background: #c7c7c7;
+    }
 
-  &:hover:last-child {
-    background: #0056b3;
-  }
+    &:hover:last-child {
+        background: #0056b3;
+    }
 `;
 
 function EditBookModal({ book, onClose, onBookUpdated }) {
+    const [existingFileName, setExistingFileName] = useState("");
+    const [notification, setNotification] = useState(null);
     const [formData, setFormData] = useState({
         title: book?.title || "",
         file: null,
     });
-
     const titleRef = useRef();
     const fileRef = useRef();
 
@@ -99,6 +146,11 @@ function EditBookModal({ book, onClose, onBookUpdated }) {
             setFormData({ ...formData, [name]: value });
         }
     };
+    const getOriginalFileName = (filename) => {
+        if (!filename) return "";
+        const parts = filename.split("C:\\Users\\ASUS\\Desktop\\uploaded_books\\");
+        return parts.length > 1 ? parts.slice(1).join("_") : filename;
+    };
 
     const handleKeyDown = (e, nextRef) => {
         if (e.key === "Enter") {
@@ -108,8 +160,8 @@ function EditBookModal({ book, onClose, onBookUpdated }) {
             }
         }
     };
-
-    const handleSubmit = async () => {
+    const handleSubmit = async (e) => {
+        e.preventDefault();
         const token = localStorage.getItem("token");
         const form = new FormData();
         form.append("title", formData.title);
@@ -132,11 +184,11 @@ function EditBookModal({ book, onClose, onBookUpdated }) {
                 onBookUpdated();
                 onClose();
             } else {
-                alert("Failed to update book");
+                setNotification({ message: "Failed to update book", success: false });
             }
         } catch (err) {
             console.error("Update error:", err);
-            alert("Something went wrong");
+            setNotification({ message: "Something went wrong", success: false });
         }
     };
 
@@ -149,31 +201,59 @@ function EditBookModal({ book, onClose, onBookUpdated }) {
                     exit={{ scale: 0.8, opacity: 0 }}
                     transition={{ duration: 0.3 }}
                 >
-                    <Title>Edit Book</Title>
-                    <Input
-                        ref={titleRef}
-                        type="text"
-                        name="title"
-                        value={formData.title}
-                        onChange={handleChange}
-                        onKeyDown={(e) => handleKeyDown(e, fileRef)}
-                        placeholder="Book Title"
-                    />
-                    <Input
-                        ref={fileRef}
-                        type="file"
-                        name="file"
-                        onChange={handleChange}
-                        onKeyDown={(e) => handleKeyDown(e, null)}
-                        accept=".pdf,.epub,.jpg,.png"
-                    />
-                    <ButtonGroup>
-                        <Button onClick={onClose}>Cancel</Button>
-                        <Button onClick={handleSubmit}>Update Book</Button>
-                    </ButtonGroup>
+                    <form onSubmit={handleSubmit}>
+                        <Title>Edit Book</Title>
+                        <Input
+                            ref={titleRef}
+                            type="text"
+                            name="title"
+                            value={formData.title}
+                            onChange={handleChange}
+                            onKeyDown={(e) => handleKeyDown(e, fileRef)}
+                            placeholder="Book Title"
+                            required
+                        />
+
+                        <FileInputWrapper>
+                            <CustomFileLabel htmlFor="fileInput">Choose File</CustomFileLabel>
+                            <HiddenInput
+                                id="fileInput"
+                                type="file"
+                                name="file"
+                                onChange={handleChange}
+                                accept=".pdf,.epub,.jpg,.png"
+                            />
+                            <FileName>
+                                {formData.file
+                                    ? formData.file.name
+                                    : book?.filename
+                                        ? getOriginalFileName(book.filename)
+                                        : "No file chosen"}
+                            </FileName>
+                        </FileInputWrapper>
+
+                        <ButtonGroup>
+                            <Button type="button" onClick={onClose}>Cancel</Button>
+                            <Button type="submit">Update Book</Button>
+                        </ButtonGroup>
+                    </form>
                 </ModalWrapper>
             </Backdrop>
+            <AnimatePresence>
+                {notification && (
+                    <Notification
+                        success={notification.success}
+                        initial={{ y: -100, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        exit={{ y: -100, opacity: 0 }}
+                        transition={{ duration: 0.5 }}
+                    >
+                        {notification.message}
+                    </Notification>
+                )}
+            </AnimatePresence>
         </AnimatePresence>
+
     );
 }
 

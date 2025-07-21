@@ -108,7 +108,7 @@ const EditButton = styled.button`
 const Notification = styled(motion.div)`
   position: fixed;
   top: 20px;
-  left: 50%;
+  left: 44%;
   transform: translateX(-50%);
   padding: 12px 24px;
   border-radius: 8px;

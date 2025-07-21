@@ -53,7 +53,7 @@ public class BookController {
             Authentication authentication
     ) {
         try {
-            String filename = UUID.randomUUID() + "_" + file.getOriginalFilename();
+            String filename = file.getOriginalFilename();
             String uploadDir = "C:\\Users\\ASUS\\Desktop";
             File uploadPath = new File(uploadDir);
             if (!uploadPath.exists()) {
