@@ -18,7 +18,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     public List<User> getAllUsers() {
-        return userRepository.findAll();
+        return userRepository.findAllOrderByIdAsc();
     }
 
     public User updateUser(Long id, User updatedUser) {
