@@ -70,18 +70,25 @@ public class BookController {
                 Files.createDirectories(booksDir);
             }
 
-            Path filePath = booksDir.resolve(originalFilename);
-            file.transferTo(filePath.toFile());
-
             User user = (User) authentication.getPrincipal();
-
-            Book book = Book.builder()
+            Book tempBook = Book.builder()
                     .title(title)
-                    .filename(originalFilename)
+                    .filename("temp")
                     .user(user)
                     .build();
 
-            return ResponseEntity.ok(bookService.saveBook(book));
+            Book savedBook = bookService.saveBook(tempBook);
+
+            String cleanTitle = title.replaceAll("[^a-zA-Z0-9]", "");
+            String newFilename = cleanTitle + savedBook.getId() + ".pdf";
+
+            Path filePath = booksDir.resolve(newFilename);
+            file.transferTo(filePath.toFile());
+
+            savedBook.setFilename(newFilename);
+            Book finalBook = bookService.saveBook(savedBook);
+
+            return ResponseEntity.ok(finalBook);
         } catch (IOException e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -112,7 +119,9 @@ public class BookController {
         Book book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new RuntimeException("Book not found"));
 
-        String filename = book.getFilename();
+        String cleanTitle = book.getTitle().replaceAll("[^a-zA-Z0-9]", "");
+        String filename = cleanTitle + book.getId() + ".pdf";
+
         Path booksDir = Paths.get("").toAbsolutePath().resolve("books");
         Path filePath = booksDir.resolve(filename);
 
@@ -121,7 +130,7 @@ public class BookController {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        
+
         bookService.deleteBook(bookId);
 
         return ResponseEntity.ok().build();
