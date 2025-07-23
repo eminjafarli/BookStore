@@ -86,7 +86,11 @@ const BackButton = styled.button`
         background-color: dimgrey;
     }
 `;
-
+const ButtonGroup = styled.div`
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+`;
 const BookInfo = styled.div`
     font-size: 16px;
 `;
@@ -112,7 +116,6 @@ const DownloadButton = styled.button`
     border: none;
     border-radius: 6px;
     cursor: pointer;
-    margin-left: -1027px;
 
     &:hover {
         background-color: #0056b3;
@@ -138,6 +141,7 @@ function BooksDashboard() {
     const [notification, setNotification] = useState(null);
     const [editBook, setEditBook] = useState(null);
     const role = localStorage.getItem("role");
+    const username = localStorage.getItem("username");
 
 
     useEffect(() => {
@@ -227,20 +231,25 @@ function BooksDashboard() {
                 <AddButton onClick={() => setShowModal(true)}>Add Book</AddButton>
             </Header>
 
-            {books.map((book) => (
-                <Card key={book.id}>
-                    <BookInfo>
-                        <strong>{book.title}</strong><br/>
-                        Uploaded by {book.user?.username}
-                    </BookInfo>
-                    {role === "ADMIN" && (
-                        <EditButton onClick={() => setEditBook(book)}>Edit</EditButton>
-                    )}
-                    <DownloadButton onClick={() => handleDownload(book)}>Download</DownloadButton>
+            {books.map((book) => {
+                console.log("Book:", book.title, "Uploader:", book.user?.username, "Logged-in user:", username);
 
+                return (
+                    <Card key={book.id}>
+                        <BookInfo>
+                            <strong>{book.title}</strong><br/>
+                            Uploaded by {book.user?.username}
+                        </BookInfo>
+                    <ButtonGroup>
+                        {(role === "ADMIN" || book?.user?.username === username) && (
+                            <EditButton onClick={() => setEditBook(book)}>Edit</EditButton>
+                        )}
+                        <DownloadButton onClick={() => handleDownload(book)}>Download</DownloadButton>
+                    </ButtonGroup>
+                    </Card>
+                );
+            })}
 
-                </Card>
-            ))}
 
             <AnimatePresence>
                 {showModal && (

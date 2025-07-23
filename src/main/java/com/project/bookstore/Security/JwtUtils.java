@@ -25,14 +25,17 @@ public class JwtUtils {
 
     public String generateJwtToken(UserDetails userDetails) {
         String role = "USER";
+        String username = "user111";
 
         if (userDetails instanceof User) {
             role = ((User) userDetails).getRole().name();
+            username = ((User) userDetails).getUsername();
         }
 
         return Jwts.builder()
                 .setSubject(userDetails.getUsername())
                 .claim("role", role)
+                .claim("username", username)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
                 .signWith(key, SignatureAlgorithm.HS512)

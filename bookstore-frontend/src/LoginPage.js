@@ -103,9 +103,12 @@ function LoginPage() {
 
                 const decoded = jwtDecode(token);
                 const role = decoded.role;
+                const username = decoded.username;
+                console.log("Decoded token:", decoded);
 
                 localStorage.setItem("token", token);
                 localStorage.setItem("role", role);
+                localStorage.setItem("username", username);
 
                 setNotification({ message: "Successful Login!", success: true });
 
