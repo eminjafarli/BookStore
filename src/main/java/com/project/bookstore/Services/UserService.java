@@ -6,22 +6,46 @@ import com.project.bookstore.Entity.User;
 import com.project.bookstore.Repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
+
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JdbcTemplate jdbcTemplate;
 
     public List<User> getAllUsers() {
         return userRepository.findAllOrderByIdAsc();
     }
+
+    @Transactional
     public void deleteUser(Long userId) {
         userRepository.deleteById(userId);
+        reindexUserIds();
+    }
+
+    @Transactional
+    public void reindexUserIds() {
+        List<User> users = userRepository.findAllOrderByIdAsc();
+        long newId = 1;
+        for (User user : users) {
+            if (user.getId() != newId) {
+                userRepository.updateUserId(user.getId(), newId);
+            }
+            newId++;
+        }
+        resetSequence();
+    }
+    private void resetSequence() {
+        String sql = "SELECT setval(pg_get_serial_sequence('users', 'id'), COALESCE((SELECT MAX(id) FROM users), 1), true)";
+        jdbcTemplate.execute(sql);
     }
 
     public User updateUser(Long id, User updatedUser) {
@@ -34,6 +58,7 @@ public class UserService {
                 })
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
     }
+
     public void register(SignupRequest request) {
         if (userRepository.findByUsername(request.getUsername()).isPresent()) {
             throw new RuntimeException("Username already exists");

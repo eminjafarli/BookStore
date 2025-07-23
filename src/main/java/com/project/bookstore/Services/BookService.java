@@ -1,9 +1,12 @@
 package com.project.bookstore.Services;
 
 import com.project.bookstore.Entity.Book;
+import com.project.bookstore.Entity.User;
 import com.project.bookstore.Repository.BookRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -16,9 +19,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BookService {
     private final BookRepository bookRepository;
+    private final JdbcTemplate jdbcTemplate;
 
     public List<Book> getAllBooks() {
-        return bookRepository.findAll();
+        return bookRepository.findAllOrderByIdAsc();
     }
 
     public List<Book> getBooksByUserId(Long userId) {
@@ -29,8 +33,28 @@ public class BookService {
         return bookRepository.save(book);
     }
 
+    @Transactional
     public void deleteBook(Long bookId) {
         bookRepository.deleteById(bookId);
+        reindexBookIds();
+    }
+
+    @Transactional
+    public void reindexBookIds() {
+        List<Book> books = bookRepository.findAllOrderByIdAsc();
+        long newId = 2;
+        for (Book book : books) {
+            if (book.getId() != newId) {
+                bookRepository.updateBookId(book.getId(), newId);
+            }
+            newId++;
+
+        }
+        resetSequence();
+    }
+    private void resetSequence() {
+        String sql = "SELECT setval(pg_get_serial_sequence('books', 'id'), COALESCE((SELECT MAX(id) FROM books), 1), true)";
+        jdbcTemplate.execute(sql);
     }
     public Book updateBook(Long bookId, String title, MultipartFile file) {
         Book book = bookRepository.findById(bookId)

@@ -130,7 +130,6 @@ public class BookController {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         bookService.deleteBook(bookId);
 
         return ResponseEntity.ok().build();
