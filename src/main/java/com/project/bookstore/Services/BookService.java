@@ -32,30 +32,30 @@ public class BookService {
     public Book saveBook(Book book) {
         return bookRepository.save(book);
     }
-
+// i just noticed that i dont need clear id for books for now
     @Transactional
     public void deleteBook(Long bookId) {
         bookRepository.deleteById(bookId);
-        reindexBookIds();
+//        reindexBookIds();
     }
 
-    @Transactional
-    public void reindexBookIds() {
-        List<Book> books = bookRepository.findAllOrderByIdAsc();
-        long newId = 2;
-        for (Book book : books) {
-            if (book.getId() != newId) {
-                bookRepository.updateBookId(book.getId(), newId);
-            }
-            newId++;
-
-        }
-        resetSequence();
-    }
-    private void resetSequence() {
-        String sql = "SELECT setval(pg_get_serial_sequence('books', 'id'), COALESCE((SELECT MAX(id) FROM books), 1), true)";
-        jdbcTemplate.execute(sql);
-    }
+//    @Transactional
+//    public void reindexBookIds() {
+//        List<Book> books = bookRepository.findAllOrderByIdAsc();
+//        long newId = 2;
+//        for (Book book : books) {
+//            if (book.getId() != newId) {
+//                bookRepository.updateBookId(book.getId(), newId);
+//            }
+//            newId++;
+//
+//        }
+//        resetSequence();
+//    }
+//    private void resetSequence() {
+//        String sql = "SELECT setval(pg_get_serial_sequence('books', 'id'), COALESCE((SELECT MAX(id) FROM books), 1), true)";
+//        jdbcTemplate.execute(sql);
+//    }
     public Book updateBook(Long bookId, String title, MultipartFile file) {
         Book book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new RuntimeException("Book not found"));
