@@ -205,8 +205,8 @@ function BooksDashboard() {
     const handleBookAdded = () => {
         setNotification({message: "Book added successfully!", success: true});
         fetchBooks();
+        setShowModal(false);
         setTimeout(() => {
-            setShowModal(false);
             setNotification(null);
         }, 1500);
     };

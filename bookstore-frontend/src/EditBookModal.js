@@ -124,6 +124,7 @@ function EditBookModal({ book, onClose, onBookUpdated,onBookDeleted }) {
     const [existingFileName, setExistingFileName] = useState("");
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [notification, setNotification] = useState(null);
+    const [isClosing, setIsClosing] = useState(false);
     const [formData, setFormData] = useState({
         title: book?.title || "",
         file: null,
@@ -170,6 +171,12 @@ function EditBookModal({ book, onClose, onBookUpdated,onBookDeleted }) {
             console.error("Failed to delete book", err);
         }
     };
+    const handleClose = () => {
+        setIsClosing(true);
+        setTimeout(() => {
+            onClose();
+        }, 300);
+    };
 
 
     const handleSubmit = async (e) => {
@@ -206,7 +213,8 @@ function EditBookModal({ book, onClose, onBookUpdated,onBookDeleted }) {
 
     return (
         <AnimatePresence>
-            <Backdrop initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            {!isClosing && (
+            <Backdrop initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}  transition={{ duration: 0.3 }}>
                 <ModalWrapper
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
@@ -250,9 +258,17 @@ function EditBookModal({ book, onClose, onBookUpdated,onBookDeleted }) {
                             </Button>
 
                             <div style={{ display: "flex", gap: "10px",marginLeft:"255px" }}>
-                                <Button type="button" onClick={onClose}>
+                                <Button
+                                    type="button"
+                                    onClick={() => {
+                                        setIsClosing(true);
+                                        setTimeout(onClose, 300);
+                                    }}
+                                >
                                     Cancel
                                 </Button>
+
+
                                 <Button type="submit">
                                     Save
                                 </Button>
@@ -261,6 +277,7 @@ function EditBookModal({ book, onClose, onBookUpdated,onBookDeleted }) {
                     </form>
                 </ModalWrapper>
             </Backdrop>
+                )}
             <AnimatePresence>
                 {notification && (
                     <Notification
@@ -282,6 +299,7 @@ function EditBookModal({ book, onClose, onBookUpdated,onBookDeleted }) {
                         onConfirm={handleDeleteBook}
                     />
                 )}
+
             </AnimatePresence>
 
         </AnimatePresence>
