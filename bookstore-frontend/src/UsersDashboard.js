@@ -21,6 +21,10 @@ const Header = styled.div`
 const Title = styled.h2`
     color: #333;
 `;
+const Text = styled.h2`
+    color: #4F4F4F;
+    font-size:20px;
+`;
 
 const Card = styled.div`
     background: #f7f7f9;
@@ -74,6 +78,8 @@ function UsersDashboard() {
     const [bookCounts, setBookCounts] = useState({});
     const [selectedUser, setSelectedUser] = useState(null);
     const [showEditModal, setShowEditModal] = useState(false);
+    const username = localStorage.getItem("username");
+    const role = localStorage.getItem("role");
     const handleUserDeleted = (id) => {
         setUsers((prevUsers) => prevUsers.filter((u) => u.id !== id));
         setShowEditModal(false);
@@ -117,7 +123,8 @@ function UsersDashboard() {
             <Header>
                 <Title>Users Dashboard</Title>
             </Header>
-
+            <Text>Logged in as {username}</Text>
+            <Text>Your Role: {role}</Text>
             {users.map((user) => (
                 <Card key={user.id}>
                     <UserInfo>

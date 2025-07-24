@@ -24,6 +24,10 @@ const Header = styled.div`
 const Title = styled.h2`
     color: #333;
 `;
+const Text = styled.h2`
+    color: #4F4F4F;
+    font-size:20px;
+`;
 
 const Card = styled.div`
     background: #f7f7f9;
@@ -142,6 +146,9 @@ function BooksDashboard() {
     const [editBook, setEditBook] = useState(null);
     const role = localStorage.getItem("role");
     const username = localStorage.getItem("username");
+    const userId = localStorage.getItem("userId");
+    const name = localStorage.getItem("name");
+
 
 
     useEffect(() => {
@@ -203,6 +210,17 @@ function BooksDashboard() {
             setNotification(null);
         }, 1500);
     };
+    const sortedBooks = [...books].sort((a, b) => {
+        const userIdNumber = parseInt(userId);
+
+        const isAUser = a.user?.id === userIdNumber;
+        const isBUser = b.user?.id === userIdNumber;
+
+        if (isAUser && !isBUser) return -1;
+        if (!isAUser && isBUser) return 1;
+        return 0;
+    });
+
 
     return (
         <Container>
@@ -230,15 +248,16 @@ function BooksDashboard() {
                 <Title>Books Dashboard</Title>
                 <AddButton onClick={() => setShowModal(true)}>Add Book</AddButton>
             </Header>
-
-            {books.map((book) => {
-                console.log("Book:", book.title, "Uploader:", book.user?.username, "Logged-in user:", username);
-
+            <Text>Logged in as {username}</Text>
+            {role === "ADMIN" && (
+            <Text>Your Role: {role}</Text>
+            )}
+            {sortedBooks.map((book) => {
                 return (
                     <Card key={book.id}>
                         <BookInfo>
                             <strong>{book.title}</strong><br/>
-                            Uploaded by {book.user?.username}
+                            Uploaded by {book.user?.name}
                         </BookInfo>
                     <ButtonGroup>
                         {(role === "ADMIN" || book?.user?.username === username) && (
