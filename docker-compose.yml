@@ -24,7 +24,7 @@ services:
       - "8080:8080"
 
   frontend:
-    build: ./frontend
+    build: ./bookstore-frontend
     ports:
       - "3000:3000"
     depends_on:
