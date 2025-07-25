@@ -13,6 +13,20 @@ const Container = styled.div`
     font-family: Arial, sans-serif;
     padding: 40px;
 `;
+const SearchInput = styled.input`
+  padding: 10px;
+  width: 200px;
+  margin: 20px 0;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 16px;
+`;
+const Group1 = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+`;
+
 
 const Header = styled.div`
     display: flex;
@@ -148,6 +162,8 @@ function BooksDashboard() {
     const username = localStorage.getItem("username");
     const userId = localStorage.getItem("userId");
     const name = localStorage.getItem("name");
+    const [searchTerm, setSearchTerm] = useState("");
+
 
 
 
@@ -248,11 +264,40 @@ function BooksDashboard() {
                 <Title>Books Dashboard</Title>
                 <AddButton onClick={() => setShowModal(true)}>Add Book</AddButton>
             </Header>
-            <Text>Logged in as {username}</Text>
-            {role === "ADMIN" && (
-            <Text>Your Role: {role}</Text>
+            {role === "USER" && (
+                <>
+                    <Group1>
+                        <Text>Logged in as {username}</Text>
+                        <SearchInput
+                            type="text"
+                            placeholder="Search"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </Group1>
+                </>
             )}
-            {sortedBooks.map((book) => {
+            {role === "ADMIN" && (
+                <>
+            <Text>Logged in as {username}</Text>
+            <Group1>
+            <Text>Your Role: {role}</Text>
+            <SearchInput
+                type="text"
+                placeholder="Search"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            </Group1>
+                </>
+            )}
+            {sortedBooks.filter((book) => {
+                const search = searchTerm.toLowerCase();
+                return (
+                    book.title.toLowerCase().includes(search) ||
+                    book.user?.name?.toLowerCase().includes(search)
+                );
+            }).map((book) => {
                 return (
                     <Card key={book.id}>
                         <BookInfo>

@@ -34,15 +34,24 @@ public class UserService {
     @Transactional
     public void reindexUserIds() {
         List<User> users = userRepository.findAllOrderByIdAsc();
-        long newId = 1;
+
+        long tempId = -1;
         for (User user : users) {
-            if (user.getId() != newId) {
-                userRepository.updateUserId(user.getId(), newId);
-            }
+            userRepository.updateUserId(user.getId(), tempId);
+            tempId--;
+        }
+
+        List<User> tempUsers = userRepository.findAllOrderByIdAsc();
+
+        long newId = 1;
+        for (User user : tempUsers) {
+            userRepository.updateUserId(user.getId(), newId);
             newId++;
         }
+
         resetSequence();
     }
+
     private void resetSequence() {
         String sql = "SELECT setval(pg_get_serial_sequence('users', 'id'), COALESCE((SELECT MAX(id) FROM users), 1), true)";
         jdbcTemplate.execute(sql);

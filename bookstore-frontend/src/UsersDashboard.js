@@ -10,6 +10,19 @@ const Container = styled.div`
     font-family: Arial, sans-serif;
     padding: 40px;
 `;
+const SearchInput = styled.input`
+  padding: 10px;
+  width: 200px;
+  margin: 20px 0;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 16px;
+`;
+const Group1 = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+`;
 
 const Header = styled.div`
     display: flex;
@@ -80,6 +93,7 @@ function UsersDashboard() {
     const [showEditModal, setShowEditModal] = useState(false);
     const username = localStorage.getItem("username");
     const role = localStorage.getItem("role");
+    const [searchTerm, setSearchTerm] = useState("");
     const handleUserDeleted = (id) => {
         setUsers((prevUsers) => prevUsers.filter((u) => u.id !== id));
         setShowEditModal(false);
@@ -116,6 +130,13 @@ function UsersDashboard() {
                 });
             });
     }, []);
+    const filteredUsers = users.filter((user) => {
+        const lowerSearch = searchTerm.toLowerCase();
+        return (
+            user.username.toLowerCase().includes(lowerSearch) ||
+            user.name.toLowerCase().includes(lowerSearch)
+        );
+    });
 
     return (
         <Container>
@@ -124,8 +145,17 @@ function UsersDashboard() {
                 <Title>Users Dashboard</Title>
             </Header>
             <Text>Logged in as {username}</Text>
+            <Group1>
             <Text>Your Role: {role}</Text>
-            {users.map((user) => (
+                <SearchInput
+                    type="text"
+                    placeholder="Search"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+
+            </Group1>
+            {filteredUsers.map((user) => (
                 <Card key={user.id}>
                     <UserInfo>
                         <strong>{user.username}</strong> — {user.name}
