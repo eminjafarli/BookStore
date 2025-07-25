@@ -1,5 +1,6 @@
 package com.project.bookstore.Services;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.project.bookstore.Entity.Book;
 import com.project.bookstore.Entity.User;
 import com.project.bookstore.Repository.BookRepository;
@@ -13,6 +14,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -28,11 +30,11 @@ public class BookService {
     public List<Book> getBooksByUserId(Long userId) {
         return bookRepository.findByUserId(userId);
     }
-
     public Book saveBook(Book book) {
+        book.setUploadDate(LocalDateTime.now().withSecond(0).withNano(0));
         return bookRepository.save(book);
     }
-// i just noticed that i dont need clear id for books for now
+// i just noticed that i dont need clean id for books for now
     @Transactional
     public void deleteBook(Long bookId) {
         bookRepository.deleteById(bookId);

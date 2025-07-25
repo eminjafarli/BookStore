@@ -12,7 +12,7 @@ import java.util.List;
 @Repository
 public interface BookRepository extends JpaRepository<Book, Long> {
     List<Book> findByUserId(Long bookId);
-    @Query("SELECT u FROM Book u ORDER BY u.id ASC")
+    @Query("SELECT u FROM Book u ORDER BY u.id DESC")
     List<Book> findAllOrderByIdAsc();
 
     @Modifying

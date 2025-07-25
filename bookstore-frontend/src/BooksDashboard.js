@@ -257,7 +257,7 @@ function BooksDashboard() {
                     <Card key={book.id}>
                         <BookInfo>
                             <strong>{book.title}</strong><br/>
-                            Uploaded by {book.user?.name}
+                            Uploaded by {book.user?.name}<br/> at {book.uploadDate}
                         </BookInfo>
                     <ButtonGroup>
                         {(role === "ADMIN" || book?.user?.username === username) && (
