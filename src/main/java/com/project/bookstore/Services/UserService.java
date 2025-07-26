@@ -51,22 +51,32 @@ public class UserService {
 
         resetSequence();
     }
-
+    public User getUserById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
     private void resetSequence() {
         String sql = "SELECT setval(pg_get_serial_sequence('users', 'id'), COALESCE((SELECT MAX(id) FROM users), 1), true)";
         jdbcTemplate.execute(sql);
     }
 
     public User updateUser(Long id, User updatedUser) {
-        return userRepository.findById(id)
-                .map(user -> {
-                    user.setName(updatedUser.getName());
-                    user.setUsername(updatedUser.getUsername());
-                    user.setRole(updatedUser.getRole());
-                    return userRepository.save(user);
-                })
-                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        User existingUser = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        existingUser.setUsername(updatedUser.getUsername());
+        existingUser.setName(updatedUser.getName());
+
+        if (updatedUser.getPassword() != null && !updatedUser.getPassword().isEmpty()) {
+            existingUser.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
+        }
+        if (updatedUser.getRole() != null && !updatedUser.getRole().describeConstable().isEmpty()) {
+            existingUser.setRole(updatedUser.getRole());
+        }
+
+        return userRepository.save(existingUser);
     }
+
 
     public void register(SignupRequest request) {
         if (userRepository.findByUsername(request.getUsername()).isPresent()) {

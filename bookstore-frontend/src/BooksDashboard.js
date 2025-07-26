@@ -5,6 +5,7 @@ import axios from "axios";
 import {motion, AnimatePresence} from "framer-motion";
 import {useNavigate} from "react-router-dom";
 import EditBookModal from "./EditBookModal";
+import EditProfileModal from "./EditProfileModal";
 
 
 const Container = styled.div`
@@ -69,7 +70,21 @@ const LogoutButton = styled.button`
         background-color: #d9363e;
     }
 `;
+const EditButton1 = styled.button`
+    background: #e0e0e0;
+    color: #333;
+    top: 20px;
+    right: 20px;
+    padding: 10px 18px;
+    font-size: 14px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
 
+    &:hover {
+        background: #c7c7c7;
+    }
+`;
 
 const AddButton = styled.button`
     position: absolute;
@@ -112,7 +127,6 @@ const ButtonGroup = styled.div`
 const BookInfo = styled.div`
     font-size: 16px;
 `;
-
 const EditButton = styled.button`
     padding: 8px 16px;
     background: #e0e0e0;
@@ -157,8 +171,10 @@ function BooksDashboard() {
     const [books, setBooks] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [notification, setNotification] = useState(null);
+    const [showEditProfileModal, setShowEditProfileModal] = useState(false);
     const [editBook, setEditBook] = useState(null);
     const role = localStorage.getItem("role");
+    const [currentUser, setCurrentUser] = useState(null);
     const username = localStorage.getItem("username");
     const userId = localStorage.getItem("userId");
     const name = localStorage.getItem("name");
@@ -184,6 +200,22 @@ function BooksDashboard() {
             console.error("Error fetching books:", error);
         }
     };
+    const handleEditProfileClick = async () => {
+        try {
+            const token = localStorage.getItem("token");
+            const response = await axios.get(`http://localhost:8080/api/users/${userId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            setCurrentUser(response.data);
+            setShowEditProfileModal(true);
+        } catch (error) {
+            console.error("Failed to fetch user data:", error);
+        }
+    };
+
     const handleDownload = async (book) => {
         const token = localStorage.getItem("token");
 
@@ -214,8 +246,6 @@ function BooksDashboard() {
             console.error("Error downloading file:", err);
         }
     };
-
-
 
 
     const handleBookAdded = () => {
@@ -251,6 +281,7 @@ function BooksDashboard() {
                     Logout
                 </LogoutButton>
             )}
+
             {role === "ADMIN" && (
                 <BackButton
                     onClick={() => {
@@ -264,6 +295,13 @@ function BooksDashboard() {
                 <Title>Books Dashboard</Title>
                 <AddButton onClick={() => setShowModal(true)}>Add Book</AddButton>
             </Header>
+            <EditButton1
+                style={{ position: "absolute", top: 20, right: 120 }}
+                onClick={handleEditProfileClick}
+            >
+                Edit Profile
+            </EditButton1>
+
             {role === "USER" && (
                 <>
                     <Group1>
@@ -290,6 +328,11 @@ function BooksDashboard() {
             />
             </Group1>
                 </>
+            )}
+            {books.length === 0 && (
+                <p style={{ textAlign: "center", fontSize: "18px", marginTop: "20px" }}>
+                    No books uploaded.
+                </p>
             )}
             {sortedBooks.filter((book) => {
                 const search = searchTerm.toLowerCase();
@@ -354,6 +397,18 @@ function BooksDashboard() {
                     >
                         {notification.message}
                     </Notification>
+                )}
+            </AnimatePresence>
+            <AnimatePresence>
+                {showEditProfileModal && currentUser && (
+                    <EditProfileModal
+                        user={currentUser}
+                        onClose={() => setShowEditProfileModal(false)}
+                        onUserDeleted={() => {
+                            localStorage.clear();
+                            navigate("/login");
+                        }}
+                    />
                 )}
             </AnimatePresence>
         </Container>
