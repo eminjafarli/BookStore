@@ -9,11 +9,13 @@ services:
       POSTGRES_PASSWORD: 1234
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "5432:5432"
 
   backend:
-    build: .
+    build:
+      context: .
     depends_on:
       - db
     environment:
@@ -24,9 +26,10 @@ services:
       - "8080:8080"
 
   frontend:
-    build: ./bookstore-frontend
+    build:
+      context: ./bookstore-frontend
     ports:
-      - "3000:3000"
+      - "3000:80"
     depends_on:
       - backend
 
