@@ -57,13 +57,9 @@ Password: 123
 
 ---
 
-## 📸 Examples
-
-## 🛠️ Admin's View: 
+## 📸 Example
 ![book-admin](https://github.com/user-attachments/assets/c0dc97bd-608c-424b-9050-7ab0ddf70e1d)
 
-## 👁️ User's View:
-![book-user1](https://github.com/user-attachments/assets/ee70b8b7-ef6c-4c27-b792-571d28e93109)
 
 ---
 
