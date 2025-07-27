@@ -41,7 +41,7 @@ A full-stack web application that simulates a social media where users can brows
 ### Run the Application
 
 ```bash
-git clone https://github.com/yourusername/BookStore.git
+git clone https://github.com/eminjafarli/BookStore.git
 cd BookStore\bookstore-frontend
 docker-compose up --build
 ```
