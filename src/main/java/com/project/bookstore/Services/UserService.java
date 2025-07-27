@@ -80,7 +80,10 @@ public class UserService {
 
     public void register(SignupRequest request) {
         if (userRepository.findByUsername(request.getUsername()).isPresent()) {
-            throw new RuntimeException("Username already exists");
+            throw new RuntimeException("Username already exists.");
+        }
+        else if(request.getPassword().length() < 8){
+            throw new IllegalArgumentException("Password must contain at least 8 letters.");
         }
 
         User user = User.builder()

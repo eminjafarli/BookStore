@@ -33,8 +33,16 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<String> signup(@RequestBody SignupRequest request) {
-        userService.register(request);
-        return ResponseEntity.ok("User registered successfully");
+        try {
+            userService.register(request);
+            return ResponseEntity.ok("User registered successfully");
+        }
+        catch (IllegalArgumentException e) {
+            return ResponseEntity.status(409).body(e.getMessage());
+        }
+        catch (RuntimeException a) {
+            return ResponseEntity.status(408).body(a.getMessage());
+        }
     }
 
 

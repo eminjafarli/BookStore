@@ -105,7 +105,16 @@ function SignupPage() {
                 setTimeout(() => {
                     navigate("/login");
                 }, 1500);
-            } else {
+            }
+            else if (response.status === 409) {
+                setNotification({message: "Password must contain at least 8 letters.", success: false});
+                setTimeout(() => {
+                    setNotification(null);
+                }, 1500);}
+            else if (response.status === 408) {
+                    setNotification({ message: "This user already exists.", success: false });
+                }
+            else {
                 setNotification({ message: "Signup Failed.", success: false });
                 setTimeout(() => {
                     setNotification(null)
