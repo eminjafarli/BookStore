@@ -31,22 +31,19 @@ A full-stack web application that simulates an online bookstore where users can 
 
 **Containerization:**
 - Docker  
-- Docker Compose
-
 ---
 
-## 🚀 Getting Started (with Docker)
+## 🚀 Getting Started
 
 ### Prerequisites
 
 - Docker
-- Docker Compose
 
 ### Run the Application
 
 ```bash
-git clone https://github.com/yourusername/bookstore.git
-cd bookstore
+git clone https://github.com/yourusername/BookStore.git
+cd BookStore\bookstore-frontend
 docker-compose up --build
 ```
 The app will be available at:
@@ -54,8 +51,7 @@ The app will be available at:
 
 ---
 
-## 🧪 Demo Credentials 
-Admin
+## 🧪 Admin Credentials 
 Username: admin
 Password: 123
 
@@ -64,7 +60,7 @@ Password: 123
 ## 📸 Examples
 
 ## 🛠️ Admin's View: 
-![book-admin](https://github.com/user-attachments/assets/87df0b2a-fcd9-4dad-8806-d4cd384a5e47)
+![book-admin](https://github.com/user-attachments/assets/c0dc97bd-608c-424b-9050-7ab0ddf70e1d)
 
 ## 👁️ User's View:
 ![book-user1](https://github.com/user-attachments/assets/ee70b8b7-ef6c-4c27-b792-571d28e93109)
@@ -73,5 +69,7 @@ Password: 123
 
 ## 📄 License
 This project is licensed under the MIT License. See the LICENSE file for more info.
+
+---
 
 Hand-Crafted & Made by Emin Jafarli.
