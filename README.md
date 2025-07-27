@@ -1,16 +1,15 @@
 # 📚 Bookstore
 
-A full-stack web application that simulates an online bookstore where users can browse, search, and manage a collection of books. It supports user authentication, role-based access (Admin/User), and a responsive UI for seamless interaction across devices.
+A full-stack web application that simulates a social media where users can browse, search, and manage a collection of books. It supports user authentication, role-based access (Admin/User), and a responsive UI for seamless interaction across devices.
 
 ---
 
 ## 🔍 Features
 
 - ✅ User registration and login
-- 🔐 Role-based access (Admin & User)
+- 🔐 Role-based access
 - 📖 Browse, search, and view book details
 - ✏️ Admins can add, update, and delete books
-- 📱 Responsive design for mobile and desktop
 - 🐳 Dockerized for easy setup and deployment
 
 ---
@@ -53,6 +52,7 @@ The app will be available at:
 
 ## 🧪 Admin Credentials 
 Username: admin
+
 Password: 123
 
 ---
