@@ -36,7 +36,7 @@ A full-stack web application that simulates a social media where users can brows
 
 ### Prerequisites
 
-- Docker
+- [Docker](docker.com)
 
 ### Run the Application
 
